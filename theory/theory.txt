@@ -1,0 +1,65 @@
+DOM : Document Object Model - Actual DOM that gets rendered in the browser.
+Virtual DOM : (React) Lightweight copy of the actual DOM, stores the virtual UI.
+CSSOM: CSS object model
+Render Tree : Combines DOM + CSSOM.
+Paint and footing : Actual painting of the pixels on the screen.
+client side rendering : Server sends blank html, then browser renders it.
+Server side rendering : Server sends full html, browser displays it immediately.
+Static site generation : HTML is generated at build time.
+
+react uses client side rendering by default 
+
+
+lazy loading (client side rendering): loading components only when they are needed. 
+          optimizes the load time of the application. reduces bundle size 
+zomato: follows polling. (polls every 30 seconds) 
+    web socket: real time communication between server and cliento or frontend and backend.
+    used in whatsapp, uber and other apps that need real time updates.
+framework: collection of libraries and tools that help you build an application. 
+        provides structure and guidelines for building an application. 
+library: collection of reusable code that can be used in an application. 
+        does not provide structure or guidelines. you can use it as you wish.
+
+optimized image performance : using webp format instead of jpeg or png. 
+                                using proper size images for proper devices. 
+reconcilation : process of updating the DOM with the new data.
+
+API: application programming interface
+a comminication between frontend and backend.
+
+types of api: 
+GET Request: To fetch the data from the server. 
+POST Request: To send the data to the server. koi bhi nayi database pe karni ho ya database me save karni ho toh POST request use hoga
+    never changes the schema
+PUT Request: To update the data in the server. update karni ho ya edit karni ho. for modification
+    i.e the schema changes in this request
+DELETE Request: To delete the data from the server. delete karni ho ya remove karni ho
+PATCH request: only changes a small patch of data not whole data like PUT request. the whole schema does not changes
+
+Status Code: 
+backend se frontend jo info aati hai wo 1 series   1xx
+2 series: success - 2xx
+3 series: backend se frontend pe redirection - 3xx
+4 series: frontend se backend pe error or other request error - 4xx jitne bhi client side se error aate hai 
+5 series: server side error - 5xx jitne bhi server side se error aate hai
+
+types of 2 series
+1. 200 : jab request success hoti hai  
+2. 201 : jab bhi koi naya resource banta  hai and success aata hai
+
+3 series 
+300 : redirection ke lie ki wrong path pe ho
+301 : permanent move ho to a url
+
+4 series (imp)
+400 : jab user invalid ho
+401 : jab access not given i.e unothorised login kare ho 
+403 : jab access denied ho 
+404 : jab resource not found ho
+
+5 series 
+500 : internal server error 
+502 : bad gateway : server se load shift nhi ho paya ya database se req wapis nahi mili 
+503 : service unavailable
+
+end points: 
