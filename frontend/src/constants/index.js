@@ -4,6 +4,8 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  VERIFY_REGISTER_OTP: '/verify-register-otp',
+  VERIFY_LOGIN_OTP: '/verify-login-otp',
   DASHBOARD: '/dashboard',
 };
 
@@ -15,13 +17,11 @@ export const STORAGE_KEYS = {
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
     REGISTER: '/auth/register',
-    ME: '/auth/me',
-  },
-  DASHBOARD: {
-    STATS: '/dashboard/stats',
-    ACTIVITIES: '/dashboard/activities',
+    VERIFY_REGISTER_OTP: '/auth/verify-register-otp',
+    LOGIN: '/auth/login',
+    VERIFY_LOGIN_OTP: '/auth/verify-login-otp',
+    PROFILE: '/auth/profile',
   },
 };
 

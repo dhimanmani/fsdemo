@@ -7,6 +7,8 @@ import ProtectedRoute from './ProtectedRoute';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import VerifyRegisterOtp from '../pages/VerifyRegisterOtp';
+import VerifyLoginOtp from '../pages/VerifyLoginOtp';
 import Dashboard from '../pages/Dashboard';
 import NotFound from '../pages/NotFound';
 
@@ -51,6 +53,22 @@ export default function AppRoutes() {
         element={
           <LayoutWrapper>
             <Register />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path={ROUTES.VERIFY_REGISTER_OTP}
+        element={
+          <LayoutWrapper>
+            <VerifyRegisterOtp />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path={ROUTES.VERIFY_LOGIN_OTP}
+        element={
+          <LayoutWrapper>
+            <VerifyLoginOtp />
           </LayoutWrapper>
         }
       />

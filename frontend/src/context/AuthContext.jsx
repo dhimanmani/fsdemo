@@ -1,36 +1,54 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { STORAGE_KEYS } from '../constants';
-import { storage } from '../utils';
-import { authService } from '../services/api';
 import toast from 'react-hot-toast';
+import { authService } from '../services/authService';
+import {
+  getToken,
+  getUser,
+  setToken,
+  setUser,
+  clearAuthStorage,
+} from '../utils/tokenStorage';
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUserState] = useState(null);
+  const [token, setTokenState] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize Auth state from localStorage
+  const saveSession = useCallback((sessionToken, sessionUser) => {
+    setTokenState(sessionToken);
+    setUserState(sessionUser);
+    setToken(sessionToken);
+    setUser(sessionUser);
+  }, []);
+
+  const handleLogout = useCallback((showToast = true) => {
+    setUserState(null);
+    setTokenState(null);
+    clearAuthStorage();
+    if (showToast) {
+      toast.success('Signed out successfully.');
+    }
+  }, []);
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const storedToken = storage.get(STORAGE_KEYS.AUTH_TOKEN);
-        const storedUser = storage.get(STORAGE_KEYS.USER_DATA);
+        const storedToken = getToken();
+        const storedUser = getUser();
 
         if (storedToken && storedUser) {
-          setToken(storedToken);
-          setUser(storedUser);
-          
-          // Verify session in background
+          setTokenState(storedToken);
+          setUserState(storedUser);
+
           try {
-            const response = await authService.getMe();
-            if (response.user) {
-              setUser(response.user);
-              storage.set(STORAGE_KEYS.USER_DATA, response.user);
+            const response = await authService.getProfile();
+            if (response.data?.user) {
+              saveSession(storedToken, response.data.user);
             }
           } catch (error) {
-            console.warn('[AuthContext] Session expired on backend, logging out.');
+            console.warn('[AuthContext] Session expired, logging out.');
             handleLogout();
           }
         }
@@ -43,9 +61,8 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
 
-    // Listen to unauthorized/expired API calls
     const handleExpiredSession = () => {
-      handleLogout();
+      handleLogout(false);
       toast.error('Your session has expired. Please sign in again.');
     };
 
@@ -53,68 +70,47 @@ export const AuthProvider = ({ children }) => {
     return () => {
       window.removeEventListener('auth_session_expired', handleExpiredSession);
     };
-  }, []);
+  }, [handleLogout, saveSession]);
 
-  // Login handler
-  const handleLogin = async (credentials) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.login(credentials);
-      
-      setUser(response.user);
-      setToken(response.token);
-      
-      storage.set(STORAGE_KEYS.AUTH_TOKEN, response.token);
-      storage.set(STORAGE_KEYS.USER_DATA, response.user);
-      
-      toast.success(`Welcome back, ${response.user.name}!`);
-      return response.user;
-    } catch (error) {
-      toast.error(error.message || 'Login failed. Please check your credentials.');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const register = async (userData) => {
+    const response = await authService.register({
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    });
+    toast.success(response.message || 'OTP sent to your email.');
+    return response.data;
   };
 
-  // Register handler
-  const handleRegister = async (userData) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.register(userData);
-      
-      setUser(response.user);
-      setToken(response.token);
-      
-      storage.set(STORAGE_KEYS.AUTH_TOKEN, response.token);
-      storage.set(STORAGE_KEYS.USER_DATA, response.user);
-      
-      toast.success(`Account created! Welcome, ${response.user.name}!`);
-      return response.user;
-    } catch (error) {
-      toast.error(error.message || 'Registration failed.');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const verifyRegisterOtp = async ({ email, otp }) => {
+    const response = await authService.verifyRegisterOtp({ email, otp });
+    saveSession(response.data.token, response.data.user);
+    toast.success(response.message || 'Email verified successfully.');
+    return response.data.user;
   };
 
-  // Logout handler
-  const handleLogout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-    storage.remove(STORAGE_KEYS.AUTH_TOKEN);
-    storage.remove(STORAGE_KEYS.USER_DATA);
-    toast.success('Signed out successfully.');
-  }, []);
+  const login = async (credentials) => {
+    const response = await authService.login(credentials);
+    toast.success(response.message || 'Login OTP sent to your email.');
+    return response.data;
+  };
+
+  const verifyLoginOtp = async ({ email, otp }) => {
+    const response = await authService.verifyLoginOtp({ email, otp });
+    saveSession(response.data.token, response.data.user);
+    toast.success(response.message || 'Login successful.');
+    return response.data.user;
+  };
 
   const value = {
     user,
     token,
     isAuthenticated: !!token,
     isLoading,
-    login: handleLogin,
-    register: handleRegister,
+    register,
+    verifyRegisterOtp,
+    login,
+    verifyLoginOtp,
     logout: handleLogout,
   };
 

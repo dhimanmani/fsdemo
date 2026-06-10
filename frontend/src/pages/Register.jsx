@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import useAuth from '../hooks/useAuth';
 import { ROUTES } from '../constants';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 
 export default function Register() {
-  const { register: signup, isAuthenticated, isLoading } = useAuth();
+  const { register: signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Auto-redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
       navigate(ROUTES.DASHBOARD, { replace: true });
@@ -36,17 +37,22 @@ export default function Register() {
   const passwordVal = watch('password');
 
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
       await signup(data);
-      navigate(ROUTES.DASHBOARD, { replace: true });
-    } catch (err) {
-      console.error('[Register] Submission error:', err);
+      navigate(ROUTES.VERIFY_REGISTER_OTP, {
+        replace: true,
+        state: { email: data.email },
+      });
+    } catch (error) {
+      toast.error(error.message || 'Registration failed.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-[90vh] flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* Background ambient lighting */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-brand-500/10 rounded-full blur-[90px] pointer-events-none" />
 
       <motion.div
@@ -56,7 +62,6 @@ export default function Register() {
         className="w-full max-w-md relative z-10"
       >
         <div className="glass-card p-8 rounded-3xl flex flex-col gap-6">
-          {/* Header */}
           <div className="text-center flex flex-col gap-2">
             <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-brand-500/25">
               ✨
@@ -65,11 +70,10 @@ export default function Register() {
               Create Account
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Scaffold your access credentials to enter the workspace.
+              Register with your details. We will email you an OTP to verify your account.
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <Input
               label="Full Name"
@@ -137,17 +141,15 @@ export default function Register() {
               type="submit"
               variant="primary"
               className="w-full mt-2"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
               icon={UserPlus}
             >
-              Get Started
+              Register & Send OTP
             </Button>
           </form>
 
-          {/* Divider */}
           <div className="h-px bg-gray-200 dark:bg-dark-border" />
 
-          {/* Footer Navigation */}
           <p className="text-center text-xs text-gray-500 dark:text-gray-400">
             Already have an account?{' '}
             <Link to={ROUTES.LOGIN} className="font-bold text-brand-600 dark:text-brand-400 hover:underline">

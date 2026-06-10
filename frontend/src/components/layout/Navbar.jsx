@@ -97,14 +97,12 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <img
-                    src={user?.avatar}
-                    alt={user?.name}
-                    className="w-8 h-8 rounded-full border border-brand-500 object-cover"
-                  />
+                  <div className="w-8 h-8 rounded-full border border-brand-500 bg-brand-50 dark:bg-brand-950/30 flex items-center justify-center">
+                    <User className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                  </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{user?.name}</span>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">{user?.role}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500">{user?.email}</span>
                   </div>
                 </div>
                 
@@ -187,17 +185,12 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <div className="p-3">
                   <div className="flex items-center gap-3 mb-4">
-                    <img
-                      src={user?.avatar}
-                      alt={user?.name}
-                      className="w-10 h-10 rounded-full border border-brand-500 object-cover"
-                    />
+                    <div className="w-10 h-10 rounded-full border border-brand-500 bg-brand-50 dark:bg-brand-950/30 flex items-center justify-center">
+                      <User className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+                    </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{user?.name}</span>
                       <span className="text-xs text-gray-400 dark:text-gray-500">{user?.email}</span>
-                      <span className="inline-block mt-0.5 text-[9px] w-fit font-bold uppercase px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400">
-                        {user?.role}
-                      </span>
                     </div>
                   </div>
                   <Button
