@@ -7,9 +7,10 @@ const configureCloudinary = () => {
     process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_SECRET_KEY;
 
   if (!cloudName || !apiKey || !apiSecret) {
-    throw new Error(
-      'Cloudinary credentials are missing. Check your .env file.'
+    console.warn(
+      'Cloudinary is not configured. Image upload features will be disabled.'
     );
+    return null;
   }
 
   cloudinary.config({

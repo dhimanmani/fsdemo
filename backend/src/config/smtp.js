@@ -1,17 +1,33 @@
 const nodemailer = require('nodemailer');
 
-const createTransporter = () => {
-  const port = Number(process.env.SMTP_PORT) || 587;
+const smtpHost = process.env.SMTP_HOST?.trim();
+const smtpPort = Number(process.env.SMTP_PORT) || 587;
+const smtpUser = process.env.SMTP_USER?.trim();
+const smtpPass = process.env.SMTP_PASS?.trim();
+const smtpFrom = process.env.SMTP_FROM?.trim() || smtpUser || 'Auth Demo <no-reply@example.com>';
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: port === 465,
-    auth: {
-      user: process.env.SMTP_USER?.trim(),
-      pass: process.env.SMTP_PASS?.trim(),
-    },
-  });
+const isConfigured = Boolean(smtpHost && smtpPort && smtpUser && smtpPass);
+
+if (!isConfigured) {
+  console.warn(
+    'SMTP is not configured. Missing one or more of SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. OTP email will not be sent.'
+  );
+}
+
+const transporter = isConfigured
+  ? nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    })
+  : null;
+
+module.exports = {
+  transporter,
+  isConfigured,
+  smtpFrom,
 };
-
-module.exports = createTransporter;

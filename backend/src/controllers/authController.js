@@ -94,8 +94,14 @@ const register = asyncHandler(async (req, res) => {
     isEmailVerified: false,
   });
 
-  await saveHashedOtp(user, plainOtp);
-  await sendOtpEmail(user.email, plainOtp, 'register');
+  try {
+    await saveHashedOtp(user, plainOtp);
+    await sendOtpEmail(user.email, plainOtp, 'register');
+  } catch (error) {
+    await User.deleteOne({ _id: user._id }).catch(() => {});
+    error.statusCode = error.statusCode || 503;
+    throw error;
+  }
 
   res.status(201).json({
     success: true,
@@ -182,8 +188,17 @@ const login = asyncHandler(async (req, res) => {
   }
 
   const plainOtp = generateOtp();
-  await saveHashedOtp(user, plainOtp);
-  await sendOtpEmail(user.email, plainOtp, 'login');
+
+  try {
+    await saveHashedOtp(user, plainOtp);
+    await sendOtpEmail(user.email, plainOtp, 'login');
+  } catch (error) {
+    user.otp = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save().catch(() => {});
+    error.statusCode = error.statusCode || 503;
+    throw error;
+  }
 
   res.status(200).json({
     success: true,
